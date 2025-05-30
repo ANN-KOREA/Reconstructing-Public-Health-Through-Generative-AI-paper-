@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reconstructing Public Health Through Generative AI</title>
+    <!-- Add Chart.js CDN for the MyLifeIndex visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --light-gray: #f8f9fa;
+            --dark-gray: #343a40;
+            --text-color: #212529;
+            --accent-color: #28a745;
+            --warning-color: #ffc107;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-gray);
+            color: var(--text-color);
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: auto;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        header {
+            background: var(--primary-color);
+            color: #fff;
+            padding: 2rem 0;
+            text-align: center;
+            border-bottom: var(--accent-color) 5px solid;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 600;
+        }
+        header p {
+            font-size: 1.1rem;
+            margin-top: 5px;
+        }
+
+        nav {
+            background: var(--dark-gray);
+            padding: 0.5rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        nav ul {
+            padding: 0;
+            list-style: none;
+            text-align: center;
+            margin: 0;
+        }
+
+        nav ul li {
+            display: inline-block;
+            margin: 0 10px;
+        }
+
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 15px;
+            display: block;
+            transition: background-color 0.3s ease;
+        }
+
+        nav ul li a:hover, nav ul li a.active {
+            background-color: var(--primary-color);
+            border-radius: 5px;
+        }
+
+        .section {
+            background: #fff;
+            margin-bottom: 25px;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.07);
+        }
+
+        .section h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--light-gray);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        .section h3 {
+            color: var(--secondary-color);
+            margin-top: 20px;
+        }
+
+        .highlight {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-left: 5px solid var(--accent-color);
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .interactive-prompt {
+            background-color: #fff3cd;
+            border: 1px solid var(--warning-color);
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 5px;
+        }
+
+        .interactive-prompt p { margin-top: 0; }
+
+        .interactive-prompt button, .cta-button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 1rem;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .interactive-prompt button:hover, .cta-button:hover {
+            background-color: #218838;
+        }
+
+        .interactive-prompt textarea, .interactive-prompt input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        ul, ol {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .responsive-img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            border-bottom: 1px dotted var(--secondary-color);
+            cursor: help;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 220px;
+            background-color: var(--dark-gray);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -110px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: var(--dark-gray);
+            color: #fff;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+            nav ul li {
+                display: block;
+                margin: 5px 0;
+            }
+            nav ul li a {
+                padding: 8px;
+            }
+            .container {
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Reconstructing Public Health Through Generative AI</h1>
+        <p>Ann Geu-Hwan’s Functioning-Based Strategy</p>
+    </header>
+
+    <nav id="main-nav">
+        <ul>
+            <li><a href="#intro">Introduction</a></li>
+            <li><a href="#philosophy">Foundations</a></li>
+            <li><a href="#assetization">Assetization</a></li>
+            <li><a href="#mylifeindex">MyLifeIndex</a></li>
+            <li><a href="#education">Education</a></li>
+            <li><a href="#models">Models</a></li>
+            <li><a href="#recommendations">Recommendations</a></li>
+            <li><a href="#conclusion">Conclusion</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <section id="intro" class="section">
+            <h2>1. Introduction</h2>
+            <p>The 21st century has witnessed a profound transformation in how we understand and pursue health. No longer can health be defined solely by the absence of disease; instead, it must be conceived as a dynamic state of <strong class="tooltip">functioning<span class="tooltiptext">The capacity to live fully, participate meaningfully, and adapt continuously.</span></strong>—the capacity to live fully, participate meaningfully, and adapt continuously to changing circumstances. As populations age, chronic illnesses proliferate, mental health disorders escalate, and health inequities widen, the old binaries of “healthy” versus “ill” fail us. In response, Dr. Ann Geu-Hwan, a former doctoral scholar in public health, proposes a radical reimagining of public health: one that harnesses the power of <strong class="tooltip">Generative AI<span class="tooltiptext">AI that can create new content, like text, images, or strategies.</span></strong> and places functioning at its core.</p>
+            <p>This report outlines Dr. Ann’s paradigm-shifting vision. We begin by tracing the philosophical foundations of her approach, grounded in the World Health Organization’s <strong class="tooltip">International Classification of Functioning, Disability and Health (ICF)<span class="tooltiptext">A WHO framework for measuring health and disability.</span></strong>. We then describe how health can be <strong class="tooltip">assetized<span class="tooltiptext">Measured, narrated, transformed, and traded as a valuable resource.</span></strong>—measured, narrated, transformed, and traded—through AI-enabled systems such as HandLoop™. We introduce MyLifeIndex, a living ecosystem that integrates multi-modal AI agents (e.g., ChatGPT, Claude, LINER) to generate real-time functioning maps and adaptive health strategies. Next, we explore the educational implications of Dr. Ann’s work, proposing a novel PhD program in public health that blends functioning theory, AI literacy, and local pilot labs. We follow with a survey of local models—ranging from AI tools for Deaf communities to Rasch-based logs for seniors—that demonstrate global scalability. Finally, we issue strategic recommendations for policymakers, educators, and practitioners, and conclude by reframing public health as an interface rather than an institution.</p>
+            <p class="highlight">By the end of this report, readers will understand how Dr. Ann’s functioning-based, AI-driven approach can transform public health from a reactive system of care into a proactive engine of human flourishing.</p>
+            <div class="interactive-prompt">
+                <p><strong>Reflection Point:</strong> How do you currently define "health"? Does the concept of "functioning" change your perspective?</p>
+                <textarea rows="3" placeholder="Jot down your thoughts here... (this is for self-reflection)"></textarea>
+            </div>
+        </section>
+
+        <section id="philosophy" class="section">
+            <h2>2. Philosophical Foundations</h2>
+            <p>At the heart of Dr. Ann’s model lie four interlocking philosophical pillars that challenge conventional health paradigms:</p>
+            
+            <h3>2.1. ICF: From Disease to Daily Performance</h3>
+            <p>Traditional biomedical models prioritize disease classification and intervention. In contrast, the ICF framework shifts focus to functioning: how individuals perform activities (e.g., walking, speaking) and participate in life roles (e.g., working, socializing). Functioning is contextual. Dr. Ann reframes health not as a diagnostic label but as a continuum of capabilities.</p>
+
+            <h3>2.2. Human-AI Collaboration: Conversations over Catalogs</h3>
+            <p>Dr. Ann replaces "distant data" with conversational context. Generative AI agents (ChatGPT, Claude, LINER) engage individuals in dialogue, fostering real-time, personalized insights. AI becomes a companion in health co-creation.</p>
+            <div class="interactive-prompt">
+                <p><strong>Imagine an AI Health Companion:</strong> What kind of questions would you want it to ask you about your daily well-being?</p>
+                <input type="text" placeholder="e.g., How did you sleep last night?">
+                <button onclick="alert('This is a demo. In a real app, your input could help personalize AI interactions.')">Submit Idea</button>
+            </div>
+
+            <h3>2.3. Self-Management: Ownership of Health</h3>
+            <p>Individuals are empowered as sovereign agents: they choose routines, respond to AI feedback, and adjust goals. Health becomes a practice of daily self-measurement and reflection.</p>
+
+            <h3>2.4. Local Storage Sovereignty: Data Autonomy</h3>
+            <p>Individuals retain control over their functioning data, stored on personal devices or secure local platforms. This respects autonomy and protects sensitive information.</p>
+            <p class="highlight">Together, these pillars establish a reorientation: from institutional authority to individual agency, static measures to adaptive capacities, centralized control to distributed autonomy, and expert dictums to conversational co-creation.</p>
+        </section>
+
+        <section id="assetization" class="section">
+            <h2>3. Assetization of Health</h2>
+            <p>Dr. Ann’s insight: health is a transformable asset—measured, narrated, improved, and circulated.</p>
+
+            <h3>3.1. Measurement via <span class="tooltip">Rasch-Scaled Logit Mapping<span class="tooltiptext">A psychometric method to convert ordinal responses into interval measures.</span></span></h3>
+            <p>Rasch analysis converts ordinal responses (e.g., "I can walk for 10 minutes") into interval-level measures on a logit scale. Participants engage in adaptive assessments to calibrate functioning thresholds, resulting in a personal logit map.</p>
+            <div class="interactive-prompt">
+                <p><strong>Try a simplified self-assessment (conceptual):</strong> On a scale of 1 (Very Difficult) to 5 (Very Easy), how easy is it for you to walk for 30 minutes without stopping?</p>
+                <select>
+                    <option>1 - Very Difficult</option>
+                    <option>2 - Difficult</option>
+                    <option>3 - Neutral</option>
+                    <option>4 - Easy</option>
+                    <option>5 - Very Easy</option>
+                </select>
+                <button onclick="alert('In a real app, this data would contribute to your Rasch-scaled logit map!')">Log My Rating</button>
+                <p><small>A real Rasch assessment is more complex and adaptive.</small></p>
+            </div>
+
+            <h3>3.2. Narration via HandLoop™</h3>
+            <p>HandLoop™ is an AI-assisted journaling system. Individuals narrate daily routines, emotional states, and contextual variables. AI guides users with structured prompts. These narratives are time-stamped, categorized, and linked to logit scores.</p>
+            <div class="interactive-prompt">
+                <p><strong>HandLoop™ Prompt Example:</strong> "Describe how you started your morning routine today. What went well? What was challenging?"</p>
+                <textarea rows="4" placeholder="Your AI-assisted journal entry... (conceptual)"></textarea>
+                <button onclick="alert('Your entry would be analyzed by HandLoop™ to provide insights.')">Save Journal Entry</button>
+            </div>
+
+            <h3>3.3. Transformation through AI-Human Loops</h3>
+            <p>AI algorithms analyze journal entries and logit data to identify patterns and propose personalized interventions. Users review, retain, and implement modified routines. This cycle fosters behavioral resilience.</p>
+
+            <h3>3.4. Trading via Community Loops</h3>
+            <p>Health routines and insights become community assets. In "health markets," individuals share, donate, or trade functioning assets (e.g., mobility exercises, coping strategies). Health circulates as a shared social good.</p>
+            <p class="highlight">Assetizing health aligns public health with economics and sustainability: measurement enables valuation, narration creates narratives for investment, transformation drives return on well-being, and trading fosters community engagement.</p>
+        </section>
+
+        <section id="mylifeindex" class="section">
+            <h2>4. MyLifeIndex: A Living Ecosystem</h2>
+            <p>MyLifeIndex is a digital ecosystem operationalizing functioning-based public health.</p>
+
+            <h3>4.1. Data Collection: Multidimensional Functioning Inputs</h3>
+            <ul>
+                <li>Wearable Sensors: Track steps, posture, physiological metrics.</li>
+                <li>Self-Assessment Prompts: Via AI chat for mood, cognitive clarity, pain.</li>
+                <li>Social Participation Logs: Record interactions.</li>
+                <li>Environmental Scans: Geolocation to contextualize functioning.</li>
+            </ul>
+            <p>All inputs feed into a unified data warehouse managed locally on the user’s device.</p>
+
+            <h3>4.2. AI Integration: Multi-Agent Collaboration</h3>
+            <ul>
+                <li><strong class="tooltip">ChatGPT<span class="tooltiptext">For natural language reflection and strategic planning.</span></strong></li>
+                <li><strong class="tooltip">Claude<span class="tooltiptext">For creative prompting and alternative scenario generation.</span></strong></li>
+                <li><strong class="tooltip">LINER<span class="tooltiptext">For culturally adapted conversation models in Korean contexts.</span></strong></li>
+                <li>Custom AI Modules: Trained on ICF-aligned functioning vocabularies.</li>
+            </ul>
+            <p>An orchestration engine routes inputs and synthesizes outputs.</p>
+
+            <h3>4.3. Output: Real-Time Self-Maps and Strategies</h3>
+            <p>Interactive dashboards show:</p>
+            <ul>
+                <li>Functioning Logit Maps</li>
+                <li>Adaptive Strategy Cards (e.g., “Try a 5-minute seated stretch”)</li>
+                <li>Warning Alerts</li>
+                <li>Community Sentiment Overlays</li>
+            </ul>
+            <div class="interactive-prompt">
+                <p><strong>Explore a MyLifeIndex Concept:</strong></p>
+                <!-- Replaced placeholder image with Chart.js canvas -->
+                <canvas id="mylifeindexChart" style="max-width: 100%; height: auto; border-radius: 5px; margin: 15px 0;"></canvas>
+                <p>Imagine this dashboard showing your daily functioning. What information would be most valuable to you?</p>
+                <button class="cta-button" onclick="alert('This could link to an interactive demo or feature tour.')">View Interactive Demo (Conceptual)</button>
+            </div>
+
+            <h3>4.4. Community Activation: Elderly-Care Networks and Sponsorships</h3>
+            <p>MyLifeIndex powers local ecosystems like Elderly-Care Cooperatives, Public Sponsorship Associations, and School-Community Partnerships.</p>
+        </section>
+
+        <section id="education" class="section">
+            <h2>5. Educational Implications</h2>
+            <p>A redesigned PhD program integrating AI, functioning theory, and hands-on practice.</p>
+
+            <h3>5.1. Curriculum Structure</h3>
+            <ol>
+                <li>Philosophies of Functioning and Self-Directed Health</li>
+                <li>Generative AI and Public Health Interfaces</li>
+                <li>Rasch Modeling and Adaptive Evaluation</li>
+                <li>Assetization and Health Portfolio Building</li>
+                <li>Regional Public Health Design Labs</li>
+                <li>ESG and Global Standards in Functioning Reporting</li>
+            </ol>
+
+            <h3>5.2. Program Deliverables</h3>
+            <ul>
+                <li>AI-Assisted Health Journals and Dashboards</li>
+                <li>Functioning Asset Portfolios</li>
+                <li>Community Pilot Interventions</li>
+                <li>Peer-Reviewed Articles</li>
+            </ul>
+
+            <h3>5.3. Evaluation Metrics</h3>
+            <ul>
+                <li>Functioning Improvement Scores</li>
+                <li>AI Literacy and Interpretation</li>
+                <li>Portfolio Impact (community adoption, ESG alignment)</li>
+            </ul>
+            <div class="interactive-prompt">
+                <p><strong>Design Your Learning Module:</strong> If you were designing a course on "AI for Public Health," what's one topic you'd definitely include and why?</p>
+                <textarea rows="3" placeholder="Your topic idea..."></textarea>
+                <button onclick="alert('Great idea! Active curriculum design is key.')">Share Idea (Conceptual)</button>
+            </div>
+        </section>
+
+        <section id="models" class="section">
+            <h2>6. Local Models, Global Value</h2>
+            <p>Pilots in Goyang City, Republic of Korea, demonstrate global relevance.</p>
+
+            <h3>6.1. “Malgeulsun Chingu” for Deaf Communities</h3>
+            <p>AI tool ingests Korean text, simplifies syntax, and generates synchronized Korean Sign Language (KSL) videos. Adaptable to other languages.</p>
+
+            <h3>6.2. Rasch-Based Daily Logs for Seniors</h3>
+            <p>AI-guided daily logs track mobility, cognition, mood. Data feed into MyLifeIndex dashboards for caregivers. Reduced hospitalization rates by 15%.</p>
+
+            <h3>6.3. Franchise-Ready Public Health Routine Kits</h3>
+            <p>Standardized kits with Functioning Asset Cards, AI Chat Prompts, Data Templates. High user engagement in diverse settings (India, Brazil).</p>
+            <p class="highlight">These pilots show local innovations, rooted in functioning and AI, can scale horizontally.</p>
+        </section>
+
+        <section id="recommendations" class="section">
+            <h2>7. Strategic Recommendations</h2>
+            <ol>
+                <li>Adopt Generative AI in Curriculum and Policy.</li>
+                <li>Use Functioning, Not Disease, as Impact Metric.</li>
+                <li>Build Local Loops to Convert Behavior into Data and Routines.</li>
+                <li>Redefine Public Health PhDs to Include AI-Assisted Portfolio Construction.</li>
+                <li>Anchor Global Expansion in WHO ICF and ESG Compliance.</li>
+            </ol>
+            <div class="interactive-prompt">
+                <p><strong>Prioritize for Impact:</strong> Which of these recommendations do you think would have the quickest positive impact on public health in your community?</p>
+                <select>
+                    <option>1. AI in Curriculum/Policy</option>
+                    <option>2. Functioning as Metric</option>
+                    <option>3. Local Loops</option>
+                    <option>4. Redefined PhDs</option>
+                    <option>5. Global Standards</option>
+                </select>
+                <button onclick="alert('Understanding priorities is crucial for implementation!')">Submit Priority</button>
+            </div>
+        </section>
+
+        <section id="conclusion" class="section">
+            <h2>8. Conclusion</h2>
+            <p>Dr. Ann Geu-Hwan’s functioning-based strategy reimagines public health as a living, learning, and trading interface for human potential. By redefining functioning as an asset, integrating Generative AI into daily health management, and building educational pathways, he offers a blueprint for 21st-century health: proactive, participatory, and powered by the synergy of human agency and machine intelligence.</p>
+            <p class="highlight">Public health no longer resides solely in hospitals and policy papers; it emerges in every conversation, routine, and community loop. In this new era, health becomes an interface—dynamic, adaptive, and human-centered—enabling all people to cultivate and exchange their most precious asset: their capacity to function.</p>
+            <button class="cta-button" style="background-color: var(--primary-color);" onclick="alert('Thank you for exploring this vision! Further development could include interactive simulations, AI chat demos, and community forums.')">Learn More About Dr. Ann's Vision (Conceptual)</button>
+        </section>
+    </div>
+
+    <footer>
+        <p>© 2024 Vision for Reconstructed Public Health. Based on the work of Dr. Ann Geu-Hwan.</p>
+        <p>This web app is an MVP created for educational and illustrative purposes.</p>
+    </footer>
+
+    <script>
+        // Smooth scroll for navigation links
+        document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+
+                // Optional: Add active class to nav link
+                document.querySelectorAll('nav a').forEach(link => link.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Highlight active nav link on scroll
+        const sections = document.querySelectorAll('.section');
+        const navLi = document.querySelectorAll('nav ul li a');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= (sectionTop - sectionHeight / 3)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLi.forEach(a => {
+                a.classList.remove('active');
+                if (a.getAttribute('href').substring(1) === current) {
+                    a.classList.add('active');
+                }
+            });
+        });
+
+        // Initialize Chart.js for MyLifeIndex visualization
+        const ctx = document.getElementById('mylifeindexChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5'],
+                datasets: [
+                    {
+                        label: 'Mobility (Logit Score)',
+                        data: [3.2, 3.5, 3.8, 4.0, 4.2],
+                        borderColor: '#007bff',
+                        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                        fill: true
+                    },
+                    {
+                        label: 'Mood (Logit Score)',
+                        data: [2.8, 3.0, 2.9, 3.5, 3.7],
+                        borderColor: '#28a745',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        fill: true
+                    },
+                    {
+                        label: 'Social Participation',
+                        data: [2.5, 2.7, 3.0, 3.2, 3.5],
+                        borderColor: '#ffc107',
+                        backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'MyLifeIndex Functioning Trends',
+                        font: { size: 18 }
+                    },
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Logit Score' }
+                    },
+                    x: {
+                        title: { display: true, text: 'Time' }
+                    }
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
